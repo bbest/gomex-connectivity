@@ -1,0 +1,83 @@
+---
+title: "impacts"
+author: "Ben Best"
+date: "`r format(Sys.time(), '%Y-%m-%d')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Study Area: GoMex
+
+- [GCOOS Products :: Shoreline](http://gcoos.org/products/index.php/bathymetry/shoreline/)
+    - [GSHHG - A Global Self-consistent, Hierarchical, High-resolution Geography Database](http://www.soest.hawaii.edu/pwessel/gshhs/index.html)
+
+```{r shore, message=F}
+library(sp)
+library(rgdal)
+library(raster)
+shore = shapefile('downloads/GSHHS_f_GOM/GSHHS_f_GOM.shp')
+plot(shore)
+```
+
+## Cumulative Impacts
+
+* [Global Map of Human Impacts to Marine Ecosystems - Data | NCEAS](https://www.nceas.ucsb.edu/globalmarine/data)
+* [Halpern et al (2015) Cumulative human impacts: raw stressor data | KNB](https://knb.ecoinformatics.org/#view/doi:10.5063/F1S180FS)
+
+### download
+
+```{r download, eval=F}
+library(dataone) # install.packages("dataone")
+
+options(dataone_token = readLines('.dataone_token'))
+am = AuthenticationManager()
+getTokenInfo(am)
+cn = CNode("PROD")
+q = query(cn, solrQuery=list(q="id:doi*", fq="id:doi\\:10.5063/F1S180FS"))
+m = q[[1]]
+
+# download tifs
+for (doc in m$documents){ s# doc = m$documents[[2]]
+  url = sprintf('https://knb.ecoinformatics.org/knb/d1/mn/v2/object/%s', doc)
+  zip = sprintf('downloads/%s.zip', doc)
+  download.file(url, zip)  
+  unzip(zip, exdir='downloads')
+}
+```
+
+### crop
+
+```{r crop, eval=F}
+# project shoreline from geographic to Mollweide like raster
+r_1 = raster(list.files('downloads','.*\\.tif$', full.names = T)[1])
+shore_mol = spTransform(shore, crs(r_1))
+
+for (tif in list.files('downloads','.*\\.tif$', full.names = T)){ # tif = list.files('downloads','.*\\.tif$', full.names = T)[1]
+  r_g = raster(tif)
+  r_mol = crop(r_g, extent(shore_mol))
+  writeRaster(r_mol, sprintf('tif_mol/%s', basename(tif)))
+}
+```
+
+### plot
+
+```{r plot}
+# project shoreline from geographic to Mollweide like raster
+r_1 = raster(list.files('tif_mol','.*\\.tif$', full.names = T)[1])
+shore_mol = spTransform(shore, crs(r_1))
+
+# loop through tifs
+for (tif in list.files('tif_mol','.*\\.tif$', full.names = T)){ # tif = list.files('tif_mol','.*\\.tif$', full.names = T)[1]
+  r = raster(tif)
+  plot(r, main = tools::file_path_sans_ext(basename(tif)))
+  plot(shore_mol, add=T)
+}
+```
+
