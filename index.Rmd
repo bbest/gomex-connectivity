@@ -44,7 +44,7 @@ q = query(cn, solrQuery=list(q="id:doi*", fq="id:doi\\:10.5063/F1S180FS"))
 m = q[[1]]
 
 # download tifs
-for (doc in m$documents){ s# doc = m$documents[[2]]
+for (doc in m$documents){ # doc = m$documents[[2]]
   url = sprintf('https://knb.ecoinformatics.org/knb/d1/mn/v2/object/%s', doc)
   zip = sprintf('downloads/%s.zip', doc)
   download.file(url, zip)  
@@ -76,7 +76,9 @@ shore_mol = spTransform(shore, crs(r_1))
 # loop through tifs
 for (tif in list.files('tif_mol','.*\\.tif$', full.names = T)){ # tif = list.files('tif_mol','.*\\.tif$', full.names = T)[1]
   r = raster(tif)
-  plot(r, main = tools::file_path_sans_ext(basename(tif)))
+  plot(
+    r, main = tools::file_path_sans_ext(basename(tif)),
+    col=rev(colorRampPalette(RColorBrewer::brewer.pal(n=9,'Spectral'))(256)))
   plot(shore_mol, add=T)
 }
 ```
