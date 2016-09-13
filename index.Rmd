@@ -81,3 +81,6 @@ for (tif in list.files('tif_mol','.*\\.tif$', full.names = T)){ # tif = list.fil
 }
 ```
 
+## Cumulative Impact Analysis
+
+- [OHI-Science/cumimpacts: ArcGIS toolbox for Cumulative Impacts Analysis](https://github.com/OHI-Science/cumimpacts)
