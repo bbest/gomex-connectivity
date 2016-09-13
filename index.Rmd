@@ -26,7 +26,7 @@ shore = shapefile('downloads/GSHHS_f_GOM/GSHHS_f_GOM.shp')
 plot(shore)
 ```
 
-## Cumulative Impacts
+## Raw Impacts
 
 * [Global Map of Human Impacts to Marine Ecosystems - Data | NCEAS](https://www.nceas.ucsb.edu/globalmarine/data)
 * [Halpern et al (2015) Cumulative human impacts: raw stressor data | KNB](https://knb.ecoinformatics.org/#view/doi:10.5063/F1S180FS)
